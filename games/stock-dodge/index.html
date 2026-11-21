@@ -25,11 +25,19 @@ footer{font-size:14px;padding:6px 12px}
 a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 @media(max-width:480px){header strong{font-size:16px}header span{font-size:12px}.hero{padding:8px}.tag{display:none}h1{font-size:23px}}
 @media(max-height:520px){header{padding:4px 12px}header strong{font-size:16px}.tag,.muted,footer{display:none}h1{font-size:18px}.hero{padding:4px 8px}.game{margin-top:4px;max-width:640px;display:grid;grid-template-columns:minmax(64px,1fr) minmax(0,3fr) minmax(64px,1fr);grid-template-rows:24px minmax(0,1fr);gap:4px 10px}.hud{grid-column:1/-1;margin:0}.arena{grid-column:2;grid-row:2;height:100%}.controls{display:contents}.controls button{width:100%;height:64px;align-self:center;margin:0}#left{grid-column:1;grid-row:2}#right{grid-column:3;grid-row:2}.overlay{gap:5px}.overlay h2{font-size:17px}.overlay p{font-size:14px}}
+
+/* Prevent iOS long-press selection across the game, including nearby labels. */
+.hero,.hero *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.controls button{-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:none;display:flex;align-items:center;justify-content:center}
+.controls button::before{content:"";display:block;width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;pointer-events:none}
+#left::before{border-right:15px solid currentColor}
+#right::before{border-left:15px solid currentColor}
+.controls button:active{background:#e8b90a;transform:translateY(1px)}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">紅色股票從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲方塊遊戲"></canvas><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動">◀</button><button id="right" aria-label="向右移動">▶</button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">紅色股票從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲方塊遊戲"></canvas><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
@@ -67,6 +75,17 @@ function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<1
 function loop(t){if(!running)return;const dt=last?Math.min((t-last)/1000,0.05):0;last=t;update(dt);draw();if(running)raf=requestAnimationFrame(loop);}
 function bind(id,direction){const el=document.getElementById(id);el.addEventListener('pointerdown',e=>{e.preventDefault();keys[direction]=true;el.setPointerCapture(e.pointerId)});for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,()=>keys[direction]=false);}
 bind('left','left');bind('right','right');
+const gameSurface=document.querySelector('.hero');
+for(const event of ['selectstart','contextmenu','dragstart']){
+ gameSurface.addEventListener(event,e=>e.preventDefault());
+}
+// Cancel native long-press behavior without replacing Pointer Events movement.
+const controls=document.querySelector('.controls');
+for(const event of ['touchstart','touchmove']){
+ controls.addEventListener(event,e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys.left=keys.right=false;});
+
 document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();keys[e.key==='ArrowLeft'?'left':'right']=true;}});document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight')keys[e.key==='ArrowLeft'?'left':'right']=false;});window.addEventListener('blur',()=>{keys.left=keys.right=false;});start.addEventListener('click',play);draw();
 })();
 </script>
