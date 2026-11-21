@@ -33,11 +33,16 @@ a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 #left::before{border-right:15px solid currentColor}
 #right::before{border-left:15px solid currentColor}
 .controls button:active{background:#e8b90a;transform:translateY(1px)}
+
+.hit-toast{position:absolute;z-index:3;top:12%;left:5%;width:90%;text-align:center;pointer-events:none;background:#fff4c9;color:#25203a;border:3px solid #ffbc4b;border-radius:16px;padding:10px 6px;box-shadow:0 5px 0 #10162966;font-size:clamp(18px,5vw,25px);font-weight:900;line-height:1.3}
+.hit-toast small{display:block;font-size:14px;font-weight:700;margin-bottom:4px;color:#714622}.hit-toast[hidden]{display:none}
+.hit-toast.pop{animation:hit-pop .24s ease-out}@keyframes hit-pop{from{transform:scale(.7) rotate(-5deg)}to{transform:scale(1) rotate(0)}}
+@media(prefers-reduced-motion:reduce){.hit-toast.pop{animation:none}}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">紅色股票從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲方塊遊戲"></canvas><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
@@ -62,16 +67,45 @@ fitViewport();
 
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),start=document.getElementById('start'),title=document.getElementById('resultTitle'),description=document.getElementById('resultText'),timeLabel=document.getElementById('time'),hitLabel=document.getElementById('hits');
 const W=360,H=480,DURATION=60,player={x:160,y:423,w:40,h:40};
+const STOCKS=[
+ {name:'台積電',joke:'台積電，我積怨！',color:'#f57f9e'},
+ {name:'聯發科',joke:'聯發科，連發哭！',color:'#b599ff'},
+ {name:'台達電',joke:'台達電，電到我！',color:'#70cfff'},
+ {name:'友達',joke:'人生阿達！',color:'#82e2b5'},
+ {name:'群創',joke:'群創，讓我群創傷！',color:'#72dce5'},
+ {name:'國巨',joke:'國巨，我的悲劇！',color:'#ffc36c'},
+ {name:'金居',joke:'金居，套房定居！',color:'#f5dc77'},
+ {name:'旺宏',joke:'旺宏，我的眼眶紅！',color:'#ff9393'},
+ {name:'聯合再生',joke:'聯合再生，錢包往生！',color:'#b5df7b'}
+];
+const toast=document.getElementById('hitToast'),hitStock=document.getElementById('hitStock'),hitJoke=document.getElementById('hitJoke');
+let toastTimer=0,lastJoke='';
+function showHit(stock){
+ lastJoke=stock.joke;hitStock.textContent='撞到 '+stock.name;hitJoke.textContent=stock.joke;
+ clearTimeout(toastTimer);toast.hidden=false;toast.classList.remove('pop');void toast.offsetWidth;toast.classList.add('pop');
+ toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
+}
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,raf=0;
-function reset(){remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
-function finish(win){running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);title.textContent=win?'🎉 過關成功！':'🥬 韭菜被套牢！';description.textContent=win?'成功沒買，沒買就沒賠！':'被股票砸中3次，再挑戰一次！';start.textContent='再玩一次';overlay.hidden=false;draw();}
+function reset(){clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+function finish(win){running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);title.textContent=win?'🎉 過關成功！':'🥬 韭菜被套牢！';description.textContent=win?'成功沒買，沒買就沒賠！':`${lastJoke} 被股票砸中3次，再挑戰一次！`;start.textContent='再玩一次';overlay.hidden=false;draw();}
 function play(){cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
-function spawnBlock(){const size=28+Math.random()*18;blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100});}
-function collide(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function spawnBlock(){const size=64+Math.random()*8;const stock=STOCKS[Math.floor(Math.random()*STOCKS.length)];blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100,stock});}
+function collide(a,b){const r=b.w/2,cx=b.x+r,cy=b.y+r;const x=Math.max(a.x,Math.min(cx,a.x+a.w)),y=Math.max(a.y,Math.min(cy,a.y+a.h));return (cx-x)**2+(cy-y)**2<r*r;}
 function update(dt){remaining=Math.max(0,remaining-dt);timeLabel.textContent=`剩餘 ${Math.ceil(remaining)} 秒`;if(remaining<=0){finish(true);return;}
 const move=(Number(keys.right)-Number(keys.left))*235*dt;player.x=Math.max(0,Math.min(W-player.w,player.x+move));spawn+=dt;while(spawn>=0.52){spawn-=0.52;spawnBlock();}
-invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;invincible=1.1;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>b.y<H+10);}
-function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<12;i++){ctx.fillRect(i*36,0,1,H)}for(const b of blocks){ctx.fillStyle='#f05252';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#fff';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText('↓',b.x+b.w/2,b.y+b.h/2+7)}if(invincible===0||Math.floor(invincible*10)%2===0){ctx.fillStyle='#55b8ff';ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle='#10203c';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText('☺',player.x+20,player.y+28);}}
+invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;showHit(b.stock);invincible=1.1;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>b.y<H+10);}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<12;i++){ctx.fillRect(i*36,0,1,H)}for(const b of blocks){
+ const r=b.w/2,cx=b.x+r,cy=b.y+r;
+ ctx.save();
+ const gradient=ctx.createRadialGradient(cx-r*.35,cy-r*.45,r*.05,cx,cy,r);
+ gradient.addColorStop(0,'#ffffff');gradient.addColorStop(.3,b.stock.color);gradient.addColorStop(1,'#304c78');
+ ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(cx,cy,r-1,0,Math.PI*2);ctx.fill();
+ ctx.lineWidth=2;ctx.strokeStyle=b.stock.color;ctx.stroke();
+ ctx.beginPath();ctx.ellipse(cx-r*.28,cy-r*.48,r*.32,r*.13,-.4,0,Math.PI*2);ctx.fillStyle='#ffffff99';ctx.fill();
+ ctx.font='900 '+(b.stock.name.length>3?14:18)+'px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.lineWidth=3;ctx.strokeStyle='#ffffffcc';ctx.strokeText(b.stock.name,cx,cy+3);ctx.fillStyle='#16233a';ctx.fillText(b.stock.name,cx,cy+3);
+ ctx.restore();
+ }if(invincible===0||Math.floor(invincible*10)%2===0){ctx.fillStyle='#55b8ff';ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle='#10203c';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText('☺',player.x+20,player.y+28);}}
 function loop(t){if(!running)return;const dt=last?Math.min((t-last)/1000,0.05):0;last=t;update(dt);draw();if(running)raf=requestAnimationFrame(loop);}
 function bind(id,direction){const el=document.getElementById(id);el.addEventListener('pointerdown',e=>{e.preventDefault();keys[direction]=true;el.setPointerCapture(e.pointerId)});for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,()=>keys[direction]=false);}
 bind('left','left');bind('right','right');
