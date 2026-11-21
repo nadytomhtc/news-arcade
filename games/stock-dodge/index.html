@@ -5,15 +5,53 @@
 <title>時事遊樂場｜閃躲股票測試版</title>
 <style>
 :root{font-family:system-ui,'Noto Sans TC',sans-serif;color:#f5f7ff;background:#101629}*{box-sizing:border-box}body{margin:0}header,main,footer{max-width:900px;margin:auto;padding:18px}header{display:flex;align-items:center;justify-content:space-between}header strong{font-size:22px}header span,.muted{color:#b5c1d8}.hero{background:#1b2640;border:1px solid #354564;border-radius:22px;padding:24px;text-align:center}h1{font-size:clamp(26px,5vw,42px);margin:4px 0 8px}.tag{color:#facc15;font-weight:800}.game{max-width:460px;margin:20px auto 0}.hud{display:flex;justify-content:space-between;margin:0 0 10px;font-weight:800}.stage{position:relative;overflow:hidden;background:linear-gradient(#293859,#17213b);border:2px solid #5a7096;border-radius:16px;aspect-ratio:3/4;touch-action:none}.stage canvas{display:block;width:100%;height:100%}.overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#10192bdc;padding:20px;gap:12px}.overlay[hidden]{display:none}.overlay h2{margin:0;font-size:28px}.overlay p{margin:0;line-height:1.7}button{border:0;border-radius:12px;padding:13px 22px;font-size:17px;font-weight:800;cursor:pointer;background:#facc15;color:#182033}.controls{display:flex;gap:12px;justify-content:space-between;margin-top:12px}.controls button{width:48%;font-size:24px;touch-action:none;user-select:none}footer{text-align:center;color:#aebbd0;font-size:13px}
+
+/* Size the play area from the visible viewport, including in-app browser bars. */
+:root{--viewport-height:100vh}
+@supports(height:100dvh){:root{--viewport-height:100dvh}}
+body{height:var(--viewport-height);min-height:320px;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header,main,footer{width:100%;margin:0 auto;flex-shrink:0}
+header{padding:10px 16px;gap:12px}header strong{font-size:18px}header span{font-size:14px}
+main{flex:1;min-height:0;padding:0 12px;display:flex}
+.hero{width:100%;min-height:0;display:flex;flex-direction:column;padding:12px}
+h1{font-size:26px;margin:0}.tag{font-size:14px}.muted{font-size:14px;margin:5px 0;line-height:1.4}
+.game{flex:1;min-height:0;width:100%;max-width:460px;margin:8px auto 0;display:flex;flex-direction:column}
+.hud{flex-shrink:0;font-size:16px;margin:0 0 6px}
+.arena{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage{flex-shrink:0;width:var(--stage-width,240px);height:var(--stage-height,320px);aspect-ratio:auto;border-radius:12px}
+.controls{flex-shrink:0;margin-top:8px;gap:12px}.controls button{width:50%;height:48px;padding:4px;font-size:24px;-webkit-user-select:none}
+footer{font-size:14px;padding:6px 12px}
+.overlay{padding:10px;gap:8px;overflow:auto}.overlay h2{font-size:clamp(17px,4vw,25px)}.overlay p{font-size:14px;line-height:1.4}.overlay button{min-height:44px;padding:10px 16px;font-size:16px}
+a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
+@media(max-width:480px){header strong{font-size:16px}header span{font-size:12px}.hero{padding:8px}.tag{display:none}h1{font-size:23px}}
+@media(max-height:520px){header{padding:4px 12px}header strong{font-size:16px}.tag,.muted,footer{display:none}h1{font-size:18px}.hero{padding:4px 8px}.game{margin-top:4px;max-width:640px;display:grid;grid-template-columns:minmax(64px,1fr) minmax(0,3fr) minmax(64px,1fr);grid-template-rows:24px minmax(0,1fr);gap:4px 10px}.hud{grid-column:1/-1;margin:0}.arena{grid-column:2;grid-row:2;height:100%}.controls{display:contents}.controls button{width:100%;height:64px;align-self:center;margin:0}#left{grid-column:1;grid-row:2}#right{grid-column:3;grid-row:2}.overlay{gap:5px}.overlay h2{font-size:17px}.overlay p{font-size:14px}}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">紅色股票從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲方塊遊戲"></canvas><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div><div class="controls"><button id="left" aria-label="向左移動">◀</button><button id="right" aria-label="向右移動">▶</button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">紅色股票從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲方塊遊戲"></canvas><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動">◀</button><button id="right" aria-label="向右移動">▶</button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
 'use strict';
+const arena=document.querySelector('.arena'),stage=document.getElementById('stage');
+function fitStage(){
+ const width=arena.clientWidth,height=arena.clientHeight;
+ const h=Math.max(0,Math.min(height,(width-4)*4/3+4));
+ stage.style.setProperty('--stage-height',`${h}px`);
+ stage.style.setProperty('--stage-width',`${Math.max(0,(h-4)*3/4+4)}px`);
+}
+function fitViewport(){
+ // Do not resize the game in response to accessibility pinch zoom.
+ if(window.visualViewport && window.visualViewport.scale!==1)return;
+ document.documentElement.style.setProperty('--viewport-height',`${window.visualViewport?.height||window.innerHeight}px`);
+ fitStage();
+}
+new ResizeObserver(fitStage).observe(arena);
+window.addEventListener('resize',fitViewport);
+window.visualViewport?.addEventListener('resize',fitViewport);
+fitViewport();
+
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),start=document.getElementById('start'),title=document.getElementById('resultTitle'),description=document.getElementById('resultText'),timeLabel=document.getElementById('time'),hitLabel=document.getElementById('hits');
 const W=360,H=480,DURATION=60,player={x:160,y:423,w:40,h:40};
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,raf=0;
