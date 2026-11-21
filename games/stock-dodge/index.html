@@ -85,15 +85,54 @@ function showHit(stock){
  clearTimeout(toastTimer);toast.hidden=false;toast.classList.remove('pop');void toast.offsetWidth;toast.classList.add('pop');
  toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
 }
-let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,raf=0;
-function reset(){clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,cryTimer=0,raf=0;
+function reset(){clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
 function finish(win){running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);title.textContent=win?'🎉 過關成功！':'🥬 韭菜被套牢！';description.textContent=win?'成功沒買，沒買就沒賠！':`${lastJoke} 被股票砸中3次，再挑戰一次！`;start.textContent='再玩一次';overlay.hidden=false;draw();}
 function play(){cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
 function spawnBlock(){const size=64+Math.random()*8;const stock=STOCKS[Math.floor(Math.random()*STOCKS.length)];blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100,stock});}
 function collide(a,b){const r=b.w/2,cx=b.x+r,cy=b.y+r;const x=Math.max(a.x,Math.min(cx,a.x+a.w)),y=Math.max(a.y,Math.min(cy,a.y+a.h));return (cx-x)**2+(cy-y)**2<r*r;}
 function update(dt){remaining=Math.max(0,remaining-dt);timeLabel.textContent=`剩餘 ${Math.ceil(remaining)} 秒`;if(remaining<=0){finish(true);return;}
 const move=(Number(keys.right)-Number(keys.left))*235*dt;player.x=Math.max(0,Math.min(W-player.w,player.x+move));spawn+=dt;while(spawn>=0.52){spawn-=0.52;spawnBlock();}
-invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;showHit(b.stock);invincible=1.1;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>b.y<H+10);}
+cryTimer=Math.max(0,cryTimer-dt);invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;showHit(b.stock);invincible=1.1;cryTimer=1.6;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>b.y<H+10);}
+function avatarMood(){return cryTimer>0?'cry':keys.left&&!keys.right?'left':keys.right&&!keys.left?'right':'idle';}
+function drawOfficeAvatar(){
+ const mood=avatarMood(),cry=mood==='cry',dir=mood==='left'?-1:mood==='right'?1:0;
+ ctx.save();ctx.translate(player.x+20,player.y+20);ctx.rotate(dir*.12);
+ // Head, hair and suit are drawn as vectors so the face stays crisp when resized.
+ function ellipse(x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();}
+ function line(points,color,width=1.6){ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();}
+ // Office collar and tie beneath the face.
+ ellipse(0,22,22,9,'#253a58');
+ ctx.fillStyle='#f6f8ff';ctx.beginPath();ctx.moveTo(-10,17);ctx.lineTo(0,29);ctx.lineTo(10,17);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#d55868';ctx.beginPath();ctx.moveTo(0,19);ctx.lineTo(-3,23);ctx.lineTo(0,29);ctx.lineTo(3,23);ctx.closePath();ctx.fill();
+ ellipse(-20,1,4,6,'#eab38b');ellipse(20,1,4,6,'#eab38b');
+ ellipse(0,0,21,24,'#f4c69e');ctx.strokeStyle='#563c38';ctx.lineWidth=1.8;ctx.stroke();
+ // Receding hairline, gray temples and forehead creases.
+ ctx.fillStyle='#33343f';ctx.beginPath();ctx.moveTo(-21,0);ctx.bezierCurveTo(-26,-27,22,-34,21,-1);ctx.lineTo(17,-6);ctx.lineTo(14,-16);ctx.bezierCurveTo(5,-21,-6,-19,-14,-14);ctx.lineTo(-17,-3);ctx.closePath();ctx.fill();
+ line([[-19,-10],[-18,-3]],'#b5bac7',2.5);line([[19,-10],[18,-3]],'#b5bac7',2.5);
+ line([[-6,-13],[5,-14]],'#c08f74',.8);line([[-5,-10],[4,-11]],'#c08f74',.8);
+ // Brows: startled left glance, determined right glance, or distressed crying.
+ if(cry){line([[-14,-5],[-7,-9]],'#533b36',2);line([[7,-9],[14,-5]],'#533b36',2);}
+ else if(dir<0){line([[-14,-9],[-5,-8]],'#533b36',2);line([[5,-5],[14,-8]],'#533b36',2);}
+ else if(dir>0){line([[-14,-7],[-5,-4]],'#533b36',2);line([[5,-4],[14,-8]],'#533b36',2);}
+ else{line([[-14,-6],[-5,-6]],'#533b36',1.8);line([[5,-6],[14,-6]],'#533b36',1.8);}
+ ellipse(-9,1,7.5,6,'#fffcf1');ellipse(9,1,7.5,6,'#fffcf1');
+ if(cry){line([[-13,2],[-9,-1],[-5,2]],'#342e39',2);line([[5,2],[9,-1],[13,2]],'#342e39',2);}
+ else{ellipse(-9+dir*2.8,1,2.2,3,'#272d40');ellipse(9+dir*2.8,1,2.2,3,'#272d40');}
+ // Rounded glasses and bridge.
+ for(const x of [-9,9]){ctx.beginPath();ctx.ellipse(x,1,7.8,6.2,0,0,Math.PI*2);ctx.strokeStyle='#37445c';ctx.lineWidth=1.6;ctx.stroke();}
+ line([[-1,0],[1,0]],'#37445c');line([[-20,0],[-17,0]],'#37445c');line([[17,0],[20,0]],'#37445c');
+ line([[0,3],[-1,8],[2,8]],'#bc856a',1.2);
+ if(cry){
+  // Two bright tear streams, visible throughout the hit invulnerability period.
+  for(const x of [-11,11]){line([[x,7],[x,16]],'#5cc9ff',3.5);ellipse(x,17+Math.sin(cryTimer*12)*1.5,2.6,3.6,'#92e5ff');}
+  ellipse(0,15,5,4,'#623142');ellipse(0,17,3,1.3,'#ed8691');
+ }else if(dir<0){ellipse(0,15,3,3.5,'#623142');ellipse(17,-13,2,3.5,'#8ae0ff');}
+ else if(dir>0){line([[-5,15],[2,13],[6,14]],'#6b3c3d',1.8);}
+ else{line([[-5,14],[0,15],[5,14]],'#6b3c3d',1.5);line([[-11,11],[-13,14]],'#c08f74',.8);line([[11,11],[13,14]],'#c08f74',.8);}
+ if(invincible>0){ctx.beginPath();ctx.ellipse(0,0,25,27,0,0,Math.PI*2);ctx.strokeStyle='#ffd376';ctx.lineWidth=2;ctx.stroke();}
+ ctx.restore();
+}
 function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<12;i++){ctx.fillRect(i*36,0,1,H)}for(const b of blocks){
  const r=b.w/2,cx=b.x+r,cy=b.y+r;
  ctx.save();
@@ -105,7 +144,8 @@ function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<1
  ctx.font='900 '+(b.stock.name.length>3?14:18)+'px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
  ctx.lineWidth=3;ctx.strokeStyle='#ffffffcc';ctx.strokeText(b.stock.name,cx,cy+3);ctx.fillStyle='#16233a';ctx.fillText(b.stock.name,cx,cy+3);
  ctx.restore();
- }if(invincible===0||Math.floor(invincible*10)%2===0){ctx.fillStyle='#55b8ff';ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle='#10203c';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText('☺',player.x+20,player.y+28);}}
+ }drawOfficeAvatar();}
+
 function loop(t){if(!running)return;const dt=last?Math.min((t-last)/1000,0.05):0;last=t;update(dt);draw();if(running)raf=requestAnimationFrame(loop);}
 function bind(id,direction){const el=document.getElementById(id);el.addEventListener('pointerdown',e=>{e.preventDefault();keys[direction]=true;el.setPointerCapture(e.pointerId)});for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,()=>keys[direction]=false);}
 bind('left','left');bind('right','right');
