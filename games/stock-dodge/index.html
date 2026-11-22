@@ -38,11 +38,20 @@ a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 .hit-toast small{display:block;font-size:14px;font-weight:700;margin-bottom:4px;color:#714622}.hit-toast[hidden]{display:none}
 .hit-toast.pop{animation:hit-pop .24s ease-out}@keyframes hit-pop{from{transform:scale(.7) rotate(-5deg)}to{transform:scale(1) rotate(0)}}
 @media(prefers-reduced-motion:reduce){.hit-toast.pop{animation:none}}
+
+.result-card{width:100%;max-width:300px;text-align:center;background:#202f4b;border:1px solid #526786;border-radius:14px;padding:12px}
+.result-card[hidden],.share-actions[hidden],.share-fallback[hidden]{display:none}
+.result-score{font-size:32px;font-weight:900;color:#facc15}.result-stats{font-size:14px;line-height:1.7;color:#d4def1}
+.share-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%}.share-actions button{background:#d7ecff;color:#17213b;font-size:14px}
+#shareStatus{font-size:14px;color:#d7ecff;min-height:0}#shareStatus:empty{display:none}
+.share-fallback{width:100%}.share-fallback textarea{-webkit-touch-callout:default;width:100%;min-height:86px;font-size:16px;-webkit-user-select:text;user-select:text}
+.overlay.results>*{flex-shrink:0}.overlay.results{justify-content:flex-start;padding:16px 10px}.overlay.results h2{font-size:22px}.overlay.results #resultText{text-align:center}
+@media(max-height:520px){.overlay.results{padding:8px}.result-card{padding:6px}.result-score{font-size:22px}.result-stats{line-height:1.4}.overlay.results h2{font-size:18px}}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><div id="resultScore" class="result-score"></div><div id="resultStats" class="result-stats"></div></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">分享戰績</button><button id="copyResult" type="button">複製戰績</button></div><p id="shareStatus" role="status" aria-live="polite"></p><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
@@ -79,21 +88,74 @@ const STOCKS=[
  {name:'聯合再生',joke:'聯合再生，錢包往生！',color:'#b5df7b'}
 ];
 const toast=document.getElementById('hitToast'),hitStock=document.getElementById('hitStock'),hitJoke=document.getElementById('hitJoke');
-let toastTimer=0,lastJoke='';
+let toastTimer=0,lastJoke='',lastStock='',dodged=0,hitCounts={},currentResult=null,personalBest=0,shareBusy=false;
+try{personalBest=Number(localStorage.getItem('stock-dodge-best-v1'))||0;}catch{}
+const resultCard=document.getElementById('resultCard'),resultScore=document.getElementById('resultScore'),resultStats=document.getElementById('resultStats'),shareActions=document.getElementById('shareActions'),shareStatus=document.getElementById('shareStatus'),shareFallback=document.getElementById('shareFallback'),shareText=document.getElementById('shareText');
 function showHit(stock){
- lastJoke=stock.joke;hitStock.textContent='撞到 '+stock.name;hitJoke.textContent=stock.joke;
+ lastStock=stock.name;hitCounts[stock.name]=(hitCounts[stock.name]||0)+1;lastJoke=stock.joke;hitStock.textContent='撞到 '+stock.name;hitJoke.textContent=stock.joke;
  clearTimeout(toastTimer);toast.hidden=false;toast.classList.remove('pop');void toast.offsetWidth;toast.classList.add('pop');
  toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
 }
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,cryTimer=0,raf=0;
-function reset(){clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
-function finish(win){running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);title.textContent=win?'🎉 過關成功！':'🥬 韭菜被套牢！';description.textContent=win?'成功沒買，沒買就沒賠！':`${lastJoke} 被股票砸中3次，再挑戰一次！`;start.textContent='再玩一次';overlay.hidden=false;draw();}
+function reset(){dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+function makeResult(win,remaining,hits,dodged){
+ const seconds=Math.min(DURATION,Math.max(0,DURATION-remaining));
+ const score=Math.floor(seconds*10)+dodged*20+(win?300+(3-hits)*100:0);
+ const rank=win?(hits===0?'空手股神':hits===1?'閃躲巴菲特':'套牢逃生王'):seconds>=40?'收盤前破功':seconds>=20?'資深接刀俠':'韭菜界閃電俠';
+ const joke=win?(hits===0?'一股都沒買，一滴淚沒流。':hits===1?'只受一點傷，還能假裝是股神。':'兩次套牢都逃掉，這次真的學乖了！'):seconds>=40?'差一點就退休，結果先退場。':seconds>=20?'別人逢低買進，你逢低被擊中。':'進場比誰都快，畢業也是。';
+ return {win,seconds,score,rank,joke,hits,dodged};
+}
+function finish(win){
+ running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);clearTimeout(toastTimer);toast.hidden=true;
+ currentResult=makeResult(win,remaining,hits,dodged);
+ const previousBest=personalBest;personalBest=Math.max(personalBest,currentResult.score);
+ try{localStorage.setItem('stock-dodge-best-v1',String(personalBest));}catch{}
+ title.textContent=(win?'🏆 ':'🥬 ')+currentResult.rank;
+ description.textContent=currentResult.joke;
+ resultScore.textContent=currentResult.score+' 分';
+ const nemesis=Object.entries(hitCounts).sort((a,b)=>b[1]-a[1])[0];
+ resultStats.replaceChildren();
+ const stats=[
+  '存活 '+currentResult.seconds.toFixed(1)+' 秒 · 閃過 '+dodged+' 顆',
+  '碰撞 '+hits+' / 3'+(nemesis?' · 冤家：'+nemesis[0]:' · 完美零碰撞'),
+  (currentResult.score>previousBest?'✨ 個人新紀錄！':'個人最佳：')+personalBest+' 分',
+  '計分：每秒10分＋閃過20分',
+  '過關加300分，每剩一次容錯加100分'
+ ];
+ for(const text of stats){const row=document.createElement('div');row.textContent=text;resultStats.append(row);}
+ if(!win&&lastJoke){const row=document.createElement('div');row.textContent='最後一擊：'+lastJoke;resultStats.append(row);}
+ resultCard.hidden=false;shareActions.hidden=false;shareStatus.textContent='';shareFallback.hidden=true;
+ start.textContent='再挑戰一次';overlay.classList.add('results');overlay.hidden=false;draw();
+}
+function resultShareText(result){
+ return '【閃躲股票】我是「'+result.rank+'」！\n'+result.score+' 分｜存活 '+result.seconds.toFixed(1)+' 秒｜閃過 '+result.dodged+' 顆｜碰撞 '+result.hits+'/3\n'+result.joke+'\n你能比我更會閃嗎？\nhttps://news-arcade.pages.dev/games/stock-dodge/';
+}
+async function copyScore(text){
+ try{
+  if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+  await navigator.clipboard.writeText(text);shareStatus.textContent='已複製！貼到 LINE 或社群挑戰朋友。';shareFallback.hidden=true;
+ }catch{
+  shareFallback.hidden=false;shareText.value=text;shareText.focus();shareText.select();shareStatus.textContent='請長按或選取文字複製。';
+ }
+}
+async function shareScore(copyOnly=false){
+ if(!currentResult||shareBusy)return;
+ const result=currentResult,text=resultShareText(result);shareBusy=true;
+ try{
+  if(!copyOnly&&navigator.share){
+   try{await navigator.share({title:'閃躲股票｜'+result.rank,text});if(currentResult===result)shareStatus.textContent='已開啟分享。';}
+   catch(error){if(error.name==='AbortError'){if(currentResult===result)shareStatus.textContent='已取消分享，成績仍保留。';}else if(currentResult===result)await copyScore(text);}
+  }else await copyScore(text);
+ }finally{shareBusy=false;}
+}
+document.getElementById('shareResult').addEventListener('click',()=>shareScore());
+document.getElementById('copyResult').addEventListener('click',()=>shareScore(true));
 function play(){cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
 function spawnBlock(){const size=64+Math.random()*8;const stock=STOCKS[Math.floor(Math.random()*STOCKS.length)];blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100,stock});}
 function collide(a,b){const r=b.w/2,cx=b.x+r,cy=b.y+r;const x=Math.max(a.x,Math.min(cx,a.x+a.w)),y=Math.max(a.y,Math.min(cy,a.y+a.h));return (cx-x)**2+(cy-y)**2<r*r;}
 function update(dt){remaining=Math.max(0,remaining-dt);timeLabel.textContent=`剩餘 ${Math.ceil(remaining)} 秒`;if(remaining<=0){finish(true);return;}
 const move=(Number(keys.right)-Number(keys.left))*235*dt;player.x=Math.max(0,Math.min(W-player.w,player.x+move));spawn+=dt;while(spawn>=0.52){spawn-=0.52;spawnBlock();}
-cryTimer=Math.max(0,cryTimer-dt);invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;showHit(b.stock);invincible=1.1;cryTimer=1.6;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>b.y<H+10);}
+cryTimer=Math.max(0,cryTimer-dt);invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;b.hit=true;showHit(b.stock);invincible=1.1;cryTimer=1.6;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>{if(b.y>=H+10){if(!b.hit)dodged++;return false;}return true;});}
 function avatarMood(){return cryTimer>0?'cry':keys.left&&!keys.right?'left':keys.right&&!keys.left?'right':'idle';}
 function drawOfficeAvatar(){
  const mood=avatarMood(),cry=mood==='cry',dir=mood==='left'?-1:mood==='right'?1:0;
@@ -151,7 +213,7 @@ function bind(id,direction){const el=document.getElementById(id);el.addEventList
 bind('left','left');bind('right','right');
 const gameSurface=document.querySelector('.hero');
 for(const event of ['selectstart','contextmenu','dragstart']){
- gameSurface.addEventListener(event,e=>e.preventDefault());
+ gameSurface.addEventListener(event,e=>{if(e.target!==shareText)e.preventDefault();});
 }
 // Cancel native long-press behavior without replacing Pointer Events movement.
 const controls=document.querySelector('.controls');
