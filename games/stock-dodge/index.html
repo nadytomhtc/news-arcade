@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>時事遊樂場｜閃躲股票測試版</title>
+<meta name="description" content="股票泡泡從天而降，撐過60秒！測測你是空手股神還是接刀俠，分享成績邀朋友挑戰。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="閃躲股票｜成功沒買，沒買就沒賠！">
+<meta property="og:description" content="60秒免費小遊戲，閃過九檔股票泡泡！你會是空手股神還是資深接刀俠？">
+<meta property="og:url" content="https://news-arcade.pages.dev/games/stock-dodge/">
+<meta property="og:locale" content="zh_TW">
 <style>
 :root{font-family:system-ui,'Noto Sans TC',sans-serif;color:#f5f7ff;background:#101629}*{box-sizing:border-box}body{margin:0}header,main,footer{max-width:900px;margin:auto;padding:18px}header{display:flex;align-items:center;justify-content:space-between}header strong{font-size:22px}header span,.muted{color:#b5c1d8}.hero{background:#1b2640;border:1px solid #354564;border-radius:22px;padding:24px;text-align:center}h1{font-size:clamp(26px,5vw,42px);margin:4px 0 8px}.tag{color:#facc15;font-weight:800}.game{max-width:460px;margin:20px auto 0}.hud{display:flex;justify-content:space-between;margin:0 0 10px;font-weight:800}.stage{position:relative;overflow:hidden;background:linear-gradient(#293859,#17213b);border:2px solid #5a7096;border-radius:16px;aspect-ratio:3/4;touch-action:none}.stage canvas{display:block;width:100%;height:100%}.overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#10192bdc;padding:20px;gap:12px}.overlay[hidden]{display:none}.overlay h2{margin:0;font-size:28px}.overlay p{margin:0;line-height:1.7}button{border:0;border-radius:12px;padding:13px 22px;font-size:17px;font-weight:800;cursor:pointer;background:#facc15;color:#182033}.controls{display:flex;gap:12px;justify-content:space-between;margin-top:12px}.controls button{width:48%;font-size:24px;touch-action:none;user-select:none}footer{text-align:center;color:#aebbd0;font-size:13px}
 
@@ -47,11 +53,19 @@ a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 .share-fallback{width:100%}.share-fallback textarea{-webkit-touch-callout:default;width:100%;min-height:86px;font-size:16px;-webkit-user-select:text;user-select:text}
 .overlay.results>*{flex-shrink:0}.overlay.results{justify-content:flex-start;padding:16px 10px}.overlay.results h2{font-size:22px}.overlay.results #resultText{text-align:center}
 @media(max-height:520px){.overlay.results{padding:8px}.result-card{padding:6px}.result-score{font-size:22px}.result-stats{line-height:1.4}.overlay.results h2{font-size:18px}}
+
+.social-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin-bottom:8px}
+.social-links a,.social-links button{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 4px;border-radius:10px;font-size:14px;font-weight:800;text-decoration:none;color:white;background:#354864;touch-action:manipulation}
+.social-links #shareFacebook{background:#165dc6}.social-links #shareThreads,.social-links #shareX{background:#0b1220}
+.social-links #shareInstagram{background:#9c2864}.social-links #shareYoutube{background:#ad2534}
+.share-panel{width:100%;max-width:320px}.share-panel[hidden]{display:none}.share-panel summary{cursor:pointer;padding:12px;border-radius:10px;background:#2b405f;font-size:15px;font-weight:800;min-height:44px}
+.share-panel[open] summary{margin-bottom:8px}
+.share-guide{margin:8px 0!important;font-size:14px!important;text-align:left;line-height:1.6!important;color:#d7e6ff}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><div id="resultScore" class="result-score"></div><div id="resultStats" class="result-stats"></div></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">分享戰績</button><button id="copyResult" type="button">複製戰績</button></div><p id="shareStatus" role="status" aria-live="polite"></p><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><div id="resultScore" class="result-score"></div><div id="resultStats" class="result-stats"></div></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">手機分享</button><button id="copyResult" type="button">複製戰績</button></div><details id="socialPanel" class="share-panel" hidden><summary>分享到 FB、Threads、X、IG、YouTube</summary><div class="social-links"><a id="shareFacebook" target="_blank" rel="noopener noreferrer">Facebook</a><a id="shareThreads" target="_blank" rel="noopener noreferrer">Threads</a><a id="shareX" target="_blank" rel="noopener noreferrer">X</a><button id="shareInstagram" type="button">IG 分享教學</button><button id="shareYoutube" type="button">YouTube 教學</button><button id="copyGameLink" type="button">複製連結</button></div><p class="share-guide" id="socialGuide">FB 分享遊戲連結；要附成績，請先按「複製戰績」再貼上。Threads／X 會帶入戰績。朋友點連結就能開啟遊戲。</p></details><p id="shareStatus" role="status" aria-live="polite"></p><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
@@ -88,6 +102,9 @@ const STOCKS=[
  {name:'聯合再生',joke:'聯合再生，錢包往生！',color:'#b5df7b'}
 ];
 const toast=document.getElementById('hitToast'),hitStock=document.getElementById('hitStock'),hitJoke=document.getElementById('hitJoke');
+const GAME_URL='https://news-arcade.pages.dev/games/stock-dodge/';
+const socialPanel=document.getElementById('socialPanel'),socialGuide=document.getElementById('socialGuide');
+const DEFAULT_SOCIAL_GUIDE='FB 分享遊戲連結；要附成績，請先按「複製戰績」再貼上。Threads／X 會帶入戰績。朋友點連結就能開啟遊戲。';
 let toastTimer=0,lastJoke='',lastStock='',dodged=0,hitCounts={},currentResult=null,personalBest=0,shareBusy=false;
 try{personalBest=Number(localStorage.getItem('stock-dodge-best-v1'))||0;}catch{}
 const resultCard=document.getElementById('resultCard'),resultScore=document.getElementById('resultScore'),resultStats=document.getElementById('resultStats'),shareActions=document.getElementById('shareActions'),shareStatus=document.getElementById('shareStatus'),shareFallback=document.getElementById('shareFallback'),shareText=document.getElementById('shareText');
@@ -97,7 +114,7 @@ function showHit(stock){
  toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
 }
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,cryTimer=0,raf=0;
-function reset(){dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+function reset(){socialPanel.hidden=true;socialPanel.open=false;socialGuide.textContent=DEFAULT_SOCIAL_GUIDE;dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
 function makeResult(win,remaining,hits,dodged){
  const seconds=Math.min(DURATION,Math.max(0,DURATION-remaining));
  const score=Math.floor(seconds*10)+dodged*20+(win?300+(3-hits)*100:0);
@@ -124,7 +141,7 @@ function finish(win){
  ];
  for(const text of stats){const row=document.createElement('div');row.textContent=text;resultStats.append(row);}
  if(!win&&lastJoke){const row=document.createElement('div');row.textContent='最後一擊：'+lastJoke;resultStats.append(row);}
- resultCard.hidden=false;shareActions.hidden=false;shareStatus.textContent='';shareFallback.hidden=true;
+ configureSocialLinks(currentResult);socialPanel.hidden=false;resultCard.hidden=false;shareActions.hidden=false;shareStatus.textContent='';shareFallback.hidden=true;
  start.textContent='再挑戰一次';overlay.classList.add('results');overlay.hidden=false;draw();
 }
 function resultShareText(result){
@@ -150,6 +167,32 @@ async function shareScore(copyOnly=false){
 }
 document.getElementById('shareResult').addEventListener('click',()=>shareScore());
 document.getElementById('copyResult').addEventListener('click',()=>shareScore(true));
+
+function socialShareLinks(result){
+ const text=resultShareText(result);
+ return {
+  facebook:'https://www.facebook.com/sharer/sharer.php?'+new URLSearchParams({u:GAME_URL}),
+  threads:'https://www.threads.com/intent/post?'+new URLSearchParams({text}),
+  x:'https://x.com/intent/tweet?'+new URLSearchParams({text:'【閃躲股票】'+result.rank+'！'+result.score+'分，閃過'+result.dodged+'顆。你能比我更會閃嗎？',url:GAME_URL})
+ };
+}
+function configureSocialLinks(result){
+ const urls=socialShareLinks(result);
+ document.getElementById('shareFacebook').href=urls.facebook;
+ document.getElementById('shareThreads').href=urls.threads;
+ document.getElementById('shareX').href=urls.x;
+}
+function showPlatformHelp(platform){
+ if(!currentResult)return;
+ socialGuide.textContent=platform==='instagram'
+  ?'Instagram：先截圖結算畫面，在 IG 建立貼文或限時動態。按「複製戰績」取得文案；限動可用「連結」貼圖貼上「複製連結」取得的遊戲網址。此按鈕不會自動發文。'
+  :'YouTube：先錄製遊戲影片，再自行上傳。按「複製戰績」取得文案，遊戲連結可放頻道個人檔案或已啟用進階功能的長影片說明。Shorts 說明／留言的外部網址無法直接點擊。';
+ socialGuide.scrollIntoView({block:'nearest'});
+}
+document.getElementById('shareInstagram').addEventListener('click',()=>showPlatformHelp('instagram'));
+document.getElementById('shareYoutube').addEventListener('click',()=>showPlatformHelp('youtube'));
+document.getElementById('copyGameLink').addEventListener('click',()=>copyScore(GAME_URL));
+
 function play(){cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
 function spawnBlock(){const size=64+Math.random()*8;const stock=STOCKS[Math.floor(Math.random()*STOCKS.length)];blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100,stock});}
 function collide(a,b){const r=b.w/2,cx=b.x+r,cy=b.y+r;const x=Math.max(a.x,Math.min(cx,a.x+a.w)),y=Math.max(a.y,Math.min(cy,a.y+a.h));return (cx-x)**2+(cy-y)**2<r*r;}
