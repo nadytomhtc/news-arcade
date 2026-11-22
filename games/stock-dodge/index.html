@@ -61,11 +61,20 @@ a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 .share-panel{width:100%;max-width:320px}.share-panel[hidden]{display:none}.share-panel summary{cursor:pointer;padding:12px;border-radius:10px;background:#2b405f;font-size:15px;font-weight:800;min-height:44px}
 .share-panel[open] summary{margin-bottom:8px}
 .share-guide{margin:8px 0!important;font-size:14px!important;text-align:left;line-height:1.6!important;color:#d7e6ff}
+
+/* Results show only the poster; sharing controls remain outside the exported image. */
+.overlay.results #resultTitle,.overlay.results #resultText{display:none}
+.overlay.results{background:#10192bf5;padding:8px;touch-action:pan-y}
+.result-card{max-width:340px;padding:0;border:0;background:none;border-radius:10px;overflow:hidden}
+.stage #resultPoster{width:100%;height:auto;aspect-ratio:4/5}
+.overlay.results .share-actions button{font-size:14px;padding:10px 12px}
+.game-results .hud,.game-results .controls,.game-results .muted{display:none}
+#posterSavePreview{width:100%;max-width:320px;height:auto;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}#posterSavePreview[hidden]{display:none}
 </style>
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
-<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><div id="resultScore" class="result-score"></div><div id="resultStats" class="result-stats"></div></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">手機分享</button><button id="copyResult" type="button">複製戰績</button></div><details id="socialPanel" class="share-panel" hidden><summary>分享到 FB、Threads、X、IG、YouTube</summary><div class="social-links"><a id="shareFacebook" target="_blank" rel="noopener noreferrer">Facebook</a><a id="shareThreads" target="_blank" rel="noopener noreferrer">Threads</a><a id="shareX" target="_blank" rel="noopener noreferrer">X</a><button id="shareInstagram" type="button">IG 分享教學</button><button id="shareYoutube" type="button">YouTube 教學</button><button id="copyGameLink" type="button">複製連結</button></div><p class="share-guide" id="socialGuide">FB 分享遊戲連結；要附成績，請先按「複製戰績」再貼上。Threads／X 會帶入戰績。朋友點連結就能開啟遊戲。</p></details><p id="shareStatus" role="status" aria-live="polite"></p><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
+<main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><canvas id="resultPoster" width="720" height="900" role="img" aria-label="成績海報"></canvas></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">分享海報</button><button id="savePoster" type="button">儲存海報</button><button id="copyResult" type="button">複製戰績</button></div><details id="socialPanel" class="share-panel" hidden><summary>分享到 FB、Threads、X、IG、YouTube</summary><div class="social-links"><a id="shareFacebook" target="_blank" rel="noopener noreferrer">Facebook</a><a id="shareThreads" target="_blank" rel="noopener noreferrer">Threads</a><a id="shareX" target="_blank" rel="noopener noreferrer">X</a><button id="shareInstagram" type="button">IG 分享教學</button><button id="shareYoutube" type="button">YouTube 教學</button><button id="copyGameLink" type="button">複製連結</button></div><p class="share-guide" id="socialGuide">FB／Threads／X 按鈕分享連結或文案。要貼海報，請用「分享海報」選支援的 App，或「儲存海報」後自行上傳。</p></details><p id="shareStatus" role="status" aria-live="polite"></p><img id="posterSavePreview" alt="可長按儲存的成績海報" hidden><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
 <script>
 (()=>{
@@ -107,14 +116,16 @@ const socialPanel=document.getElementById('socialPanel'),socialGuide=document.ge
 const DEFAULT_SOCIAL_GUIDE='FB 分享遊戲連結；要附成績，請先按「複製戰績」再貼上。Threads／X 會帶入戰績。朋友點連結就能開啟遊戲。';
 let toastTimer=0,lastJoke='',lastStock='',dodged=0,hitCounts={},currentResult=null,personalBest=0,shareBusy=false;
 try{personalBest=Number(localStorage.getItem('stock-dodge-best-v1'))||0;}catch{}
-const resultCard=document.getElementById('resultCard'),resultScore=document.getElementById('resultScore'),resultStats=document.getElementById('resultStats'),shareActions=document.getElementById('shareActions'),shareStatus=document.getElementById('shareStatus'),shareFallback=document.getElementById('shareFallback'),shareText=document.getElementById('shareText');
+const resultCard=document.getElementById('resultCard'),posterCanvas=document.getElementById('resultPoster'),shareActions=document.getElementById('shareActions'),shareStatus=document.getElementById('shareStatus'),shareFallback=document.getElementById('shareFallback'),shareText=document.getElementById('shareText');
 function showHit(stock){
  lastStock=stock.name;hitCounts[stock.name]=(hitCounts[stock.name]||0)+1;lastJoke=stock.joke;hitStock.textContent='撞到 '+stock.name;hitJoke.textContent=stock.joke;
  clearTimeout(toastTimer);toast.hidden=false;toast.classList.remove('pop');void toast.offsetWidth;toast.classList.add('pop');
  toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
 }
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,cryTimer=0,raf=0;
-function reset(){socialPanel.hidden=true;socialPanel.open=false;socialGuide.textContent=DEFAULT_SOCIAL_GUIDE;dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+const posterSavePreview=document.getElementById('posterSavePreview');
+let posterFile=null,posterDataUrl='';
+function reset(){posterSavePreview.hidden=true;posterSavePreview.removeAttribute("src");document.body.classList.remove("game-results");posterFile=null;posterDataUrl='';socialPanel.hidden=true;socialPanel.open=false;socialGuide.textContent=DEFAULT_SOCIAL_GUIDE;dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
 function makeResult(win,remaining,hits,dodged){
  const seconds=Math.min(DURATION,Math.max(0,DURATION-remaining));
  const score=Math.floor(seconds*10)+dodged*20+(win?300+(3-hits)*100:0);
@@ -122,30 +133,92 @@ function makeResult(win,remaining,hits,dodged){
  const joke=win?(hits===0?'一股都沒買，一滴淚沒流。':hits===1?'只受一點傷，還能假裝是股神。':'兩次套牢都逃掉，這次真的學乖了！'):seconds>=40?'差一點就退休，結果先退場。':seconds>=20?'別人逢低買進，你逢低被擊中。':'進場比誰都快，畢業也是。';
  return {win,seconds,score,rank,joke,hits,dodged};
 }
+const LOSS_LINES={
+ '台積電':['買了台積電','每天都積怨'],
+ '聯發科':['買了聯發科','眼淚連發哭'],
+ '台達電':['買了台達電','錢包被電爆'],
+ '友達':['買了友達','人生阿達'],
+ '群創':['買了群創','滿身創傷'],
+ '國巨':['買了國巨','人生悲劇'],
+ '金居':['買了金居','套房定居'],
+ '旺宏':['買了旺宏','哭到眼眶紅'],
+ '聯合再生':['聯合再生','錢包往生']
+};
 function finish(win){
+ document.body.classList.add("game-results");
  running=false;keys.left=keys.right=false;cancelAnimationFrame(raf);clearTimeout(toastTimer);toast.hidden=true;
  currentResult=makeResult(win,remaining,hits,dodged);
- const previousBest=personalBest;personalBest=Math.max(personalBest,currentResult.score);
+ currentResult.slogan=win?['成功沒買','沒買就沒賠']:(LOSS_LINES[lastStock]||['股票沒閃過','眼淚先跌停']);
+ personalBest=Math.max(personalBest,currentResult.score);
  try{localStorage.setItem('stock-dodge-best-v1',String(personalBest));}catch{}
- title.textContent=(win?'🏆 ':'🥬 ')+currentResult.rank;
- description.textContent=currentResult.joke;
- resultScore.textContent=currentResult.score+' 分';
- const nemesis=Object.entries(hitCounts).sort((a,b)=>b[1]-a[1])[0];
- resultStats.replaceChildren();
- const stats=[
-  '存活 '+currentResult.seconds.toFixed(1)+' 秒 · 閃過 '+dodged+' 顆',
-  '碰撞 '+hits+' / 3'+(nemesis?' · 冤家：'+nemesis[0]:' · 完美零碰撞'),
-  (currentResult.score>previousBest?'✨ 個人新紀錄！':'個人最佳：')+personalBest+' 分',
-  '計分：每秒10分＋閃過20分',
-  '過關加300分，每剩一次容錯加100分'
- ];
- for(const text of stats){const row=document.createElement('div');row.textContent=text;resultStats.append(row);}
- if(!win&&lastJoke){const row=document.createElement('div');row.textContent='最後一擊：'+lastJoke;resultStats.append(row);}
- configureSocialLinks(currentResult);socialPanel.hidden=false;resultCard.hidden=false;shareActions.hidden=false;shareStatus.textContent='';shareFallback.hidden=true;
- start.textContent='再挑戰一次';overlay.classList.add('results');overlay.hidden=false;draw();
+ title.textContent=currentResult.slogan.join('，');description.textContent='';
+ renderResultPoster(currentResult);
+ configureSocialLinks(currentResult);socialPanel.hidden=false;resultCard.hidden=false;shareActions.hidden=false;
+ shareStatus.textContent='';shareFallback.hidden=true;
+ start.textContent='再挑戰一次';overlay.classList.add('results');overlay.hidden=false;overlay.scrollTop=0;draw();
+}
+function renderResultPoster(result){
+ const p=posterCanvas.getContext('2d'),win=result.win;
+ p.clearRect(0,0,720,900);
+ p.fillStyle=win?'#ffe582':'#b8cdf3';p.fillRect(0,0,720,900);
+ // Comic rays give the figure a clear silhouette without competing with the headline.
+ p.save();p.translate(360,530);
+ for(let i=0;i<18;i++){p.rotate(Math.PI/9);p.beginPath();p.moveTo(0,0);p.lineTo(-55,-950);p.lineTo(55,-950);p.closePath();p.fillStyle=win?'#fff2bd':'#dce7ff';p.fill();}
+ p.restore();
+ p.strokeStyle='#152139';p.lineWidth=14;p.strokeRect(12,12,696,876);
+ p.textAlign='center';p.textBaseline='middle';
+ p.fillStyle='#152139';p.font='900 74px system-ui';p.fillText(result.score+' 分',360,90);
+ for(let i=0;i<2;i++){
+  p.font='900 68px system-ui';p.lineJoin='round';p.lineWidth=10;p.strokeStyle='#152139';
+  p.strokeText(result.slogan[i],360,190+i*84,650);
+  p.fillStyle=i===0?'#ffffff':win?'#f75b37':'#ffda65';p.fillText(result.slogan[i],360,190+i*84,650);
+ }
+ drawPosterPerson(p,win);
+ p.fillStyle='#152139';p.fillRect(19,820,682,61);
+ p.fillStyle='#ffffff';p.font='800 24px system-ui';p.fillText('閃躲股票 · 時事遊樂場',360,850);
+ posterCanvas.setAttribute('aria-label',result.score+' 分，'+result.slogan.join('，')+'。'+(win?'上班族開心舉起雙拳。':'上班族抱頭大哭。'));
+ posterDataUrl=posterCanvas.toDataURL('image/png');posterFile=null;
+ posterCanvas.toBlob(blob=>{
+  if(blob&&currentResult===result)posterFile=new File([blob],'stock-dodge-'+(win?'win':'lose')+'-'+result.score+'.png',{type:'image/png'});
+ },'image/png');
+}
+function drawPosterPerson(p,win){
+ const outline='#152139';
+ function shape(points,fill){p.beginPath();p.moveTo(...points[0]);for(const v of points.slice(1))p.lineTo(...v);p.closePath();p.fillStyle=fill;p.fill();p.strokeStyle=outline;p.lineWidth=9;p.lineJoin='round';p.stroke();}
+ function oval(x,y,rx,ry,fill){p.beginPath();p.ellipse(x,y,rx,ry,0,0,Math.PI*2);p.fillStyle=fill;p.fill();p.strokeStyle=outline;p.lineWidth=7;p.stroke();}
+ function limb(points,width,color){p.beginPath();p.moveTo(...points[0]);for(const v of points.slice(1))p.lineTo(...v);p.lineCap='round';p.lineJoin='round';p.strokeStyle=outline;p.lineWidth=width+14;p.stroke();p.strokeStyle=color;p.lineWidth=width;p.stroke();}
+ // The same glasses, receding hair and gray temples as the playable character.
+ shape([[260,590],[460,590],[500,805],[220,805]],'#304869');
+ shape([[314,592],[360,700],[406,592]],'#fff9ec');
+ shape([[348,625],[373,625],[386,743],[360,777],[337,743]],'#e75262');
+ shape([[281,600],[323,688],[296,722],[340,802],[252,802]],'#486484');
+ shape([[439,600],[397,688],[424,722],[380,802],[468,802]],'#486484');
+ if(win){
+  limb([[270,625],[180,570],[145,434]],56,'#304869');
+  limb([[450,625],[540,570],[575,434]],56,'#304869');
+  oval(139,407,37,43,'#f4c69e');oval(581,407,37,43,'#f4c69e');
+  for(const x of [125,139,153,567,581,595]){p.beginPath();p.moveTo(x,388);p.lineTo(x,414);p.strokeStyle='#b77c63';p.lineWidth=3;p.stroke();}
+ }else{
+  limb([[270,635],[174,588],[238,467]],54,'#304869');
+  limb([[450,635],[546,588],[482,467]],54,'#304869');
+ }
+ p.save();p.translate(360,496);p.scale(5.2,5.2);
+ drawOfficeAvatar(p,win?'win':'cry',{x:0,y:0});
+ p.restore();
+ if(!win){
+  oval(242,457,25,47,'#f4c69e');oval(478,457,25,47,'#f4c69e');
+  // Big tears and slumped shoulders make the loss readable even in a small thumbnail.
+  for(const x of [302,418]){p.beginPath();p.moveTo(x,551);p.quadraticCurveTo(x-20,596,x,620);p.quadraticCurveTo(x+20,596,x,551);p.fillStyle='#48bfff';p.fill();p.strokeStyle='#152139';p.lineWidth=4;p.stroke();}
+ }
+ // Sparse celebration / panic marks.
+ for(const [x,y,angle] of [[90,520,-.3],[620,650,.4],[100,720,.3],[620,360,-.4]]){
+  p.save();p.translate(x,y);p.rotate(angle);p.fillStyle=win?'#e75948':'#526992';
+  if(win){p.fillRect(-7,-18,14,36);}else{p.beginPath();p.moveTo(-9,-15);p.lineTo(9,0);p.lineTo(-9,15);p.strokeStyle='#526992';p.lineWidth=6;p.stroke();}
+  p.restore();
+ }
 }
 function resultShareText(result){
- return '【閃躲股票】我是「'+result.rank+'」！\n'+result.score+' 分｜存活 '+result.seconds.toFixed(1)+' 秒｜閃過 '+result.dodged+' 顆｜碰撞 '+result.hits+'/3\n'+result.joke+'\n你能比我更會閃嗎？\nhttps://news-arcade.pages.dev/games/stock-dodge/';
+ return '【閃躲股票】'+result.score+' 分！\n'+(result.slogan||[result.joke]).join('，')+'！\n你能比我更會閃嗎？\n'+GAME_URL;
 }
 async function copyScore(text){
  try{
@@ -160,12 +233,21 @@ async function shareScore(copyOnly=false){
  const result=currentResult,text=resultShareText(result);shareBusy=true;
  try{
   if(!copyOnly&&navigator.share){
-   try{await navigator.share({title:'閃躲股票｜'+result.rank,text});if(currentResult===result)shareStatus.textContent='已開啟分享。';}
+   try{const payload={title:'閃躲股票｜'+result.score+' 分',text};
+    const hasImage=!!(posterFile&&navigator.canShare?.({files:[posterFile]}));
+    if(hasImage)payload.files=[posterFile];
+    await navigator.share(payload);if(currentResult===result)shareStatus.textContent=hasImage?'已開啟海報分享。':'已開啟文字分享；圖片請按「儲存海報」後上傳。';}
    catch(error){if(error.name==='AbortError'){if(currentResult===result)shareStatus.textContent='已取消分享，成績仍保留。';}else if(currentResult===result)await copyScore(text);}
-  }else await copyScore(text);
+  }else{await copyScore(text);if(currentResult===result)shareStatus.textContent+=' 圖片請按「儲存海報」後上傳。';}
  }finally{shareBusy=false;}
 }
 document.getElementById('shareResult').addEventListener('click',()=>shareScore());
+document.getElementById('savePoster').addEventListener('click',()=>{
+ if(!posterDataUrl||!currentResult)return;
+ posterSavePreview.src=posterDataUrl;posterSavePreview.hidden=false;
+ const link=document.createElement('a');link.href=posterDataUrl;link.download='stock-dodge-'+(currentResult.win?'win':'lose')+'-'+currentResult.score+'.png';document.body.append(link);link.click();link.remove();
+ shareStatus.textContent='已開啟海報下載；手機也可長按下方海報儲存。';
+});
 document.getElementById('copyResult').addEventListener('click',()=>shareScore(true));
 
 function socialShareLinks(result){
@@ -173,7 +255,7 @@ function socialShareLinks(result){
  return {
   facebook:'https://www.facebook.com/sharer/sharer.php?'+new URLSearchParams({u:GAME_URL}),
   threads:'https://www.threads.com/intent/post?'+new URLSearchParams({text}),
-  x:'https://x.com/intent/tweet?'+new URLSearchParams({text:'【閃躲股票】'+result.rank+'！'+result.score+'分，閃過'+result.dodged+'顆。你能比我更會閃嗎？',url:GAME_URL})
+  x:'https://x.com/intent/tweet?'+new URLSearchParams({text:'【閃躲股票】'+result.score+'分！'+(result.slogan||[result.joke]).join('，')+'！你能比我更會閃嗎？',url:GAME_URL})
  };
 }
 function configureSocialLinks(result){
@@ -185,7 +267,7 @@ function configureSocialLinks(result){
 function showPlatformHelp(platform){
  if(!currentResult)return;
  socialGuide.textContent=platform==='instagram'
-  ?'Instagram：先截圖結算畫面，在 IG 建立貼文或限時動態。按「複製戰績」取得文案；限動可用「連結」貼圖貼上「複製連結」取得的遊戲網址。此按鈕不會自動發文。'
+  ?'Instagram：先按「儲存海報」，再到 IG 建立貼文或限時動態，上傳這張圖。按「複製戰績」取得文案；限動可用「連結」貼圖貼上「複製連結」取得的遊戲網址。此按鈕不會自動發文。'
   :'YouTube：先錄製遊戲影片，再自行上傳。按「複製戰績」取得文案，遊戲連結可放頻道個人檔案或已啟用進階功能的長影片說明。Shorts 說明／留言的外部網址無法直接點擊。';
  socialGuide.scrollIntoView({block:'nearest'});
 }
@@ -200,9 +282,10 @@ function update(dt){remaining=Math.max(0,remaining-dt);timeLabel.textContent=`�
 const move=(Number(keys.right)-Number(keys.left))*235*dt;player.x=Math.max(0,Math.min(W-player.w,player.x+move));spawn+=dt;while(spawn>=0.52){spawn-=0.52;spawnBlock();}
 cryTimer=Math.max(0,cryTimer-dt);invincible=Math.max(0,invincible-dt);for(const b of blocks){b.y+=b.speed*dt;if(invincible===0&&collide(player,b)){hits++;b.hit=true;showHit(b.stock);invincible=1.1;cryTimer=1.6;hitLabel.textContent=`碰撞 ${hits} / 3`;b.y=H+100;if(hits>=3){finish(false);return;}}}blocks=blocks.filter(b=>{if(b.y>=H+10){if(!b.hit)dodged++;return false;}return true;});}
 function avatarMood(){return cryTimer>0?'cry':keys.left&&!keys.right?'left':keys.right&&!keys.left?'right':'idle';}
-function drawOfficeAvatar(){
- const mood=avatarMood(),cry=mood==='cry',dir=mood==='left'?-1:mood==='right'?1:0;
- ctx.save();ctx.translate(player.x+20,player.y+20);ctx.rotate(dir*.12);
+function drawOfficeAvatar(targetCtx=ctx,overrideMood=null,center=null){
+ const ctx=targetCtx;
+ const mood=overrideMood||avatarMood(),cry=mood==='cry',dir=mood==='left'?-1:mood==='right'?1:0;
+ ctx.save();ctx.translate(center?center.x:player.x+20,center?center.y:player.y+20);ctx.rotate(dir*.12);
  // Head, hair and suit are drawn as vectors so the face stays crisp when resized.
  function ellipse(x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();}
  function line(points,color,width=1.6){ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();}
@@ -234,8 +317,9 @@ function drawOfficeAvatar(){
   ellipse(0,15,5,4,'#623142');ellipse(0,17,3,1.3,'#ed8691');
  }else if(dir<0){ellipse(0,15,3,3.5,'#623142');ellipse(17,-13,2,3.5,'#8ae0ff');}
  else if(dir>0){line([[-5,15],[2,13],[6,14]],'#6b3c3d',1.8);}
+ else if(mood==='win'){ellipse(0,14,9,6,'#623142');ctx.fillStyle='#fffdf4';ctx.fillRect(-7,10,14,3);ellipse(-16,9,3,1.8,'#e99183');ellipse(16,9,3,1.8,'#e99183');}
  else{line([[-5,14],[0,15],[5,14]],'#6b3c3d',1.5);line([[-11,11],[-13,14]],'#c08f74',.8);line([[11,11],[13,14]],'#c08f74',.8);}
- if(invincible>0){ctx.beginPath();ctx.ellipse(0,0,25,27,0,0,Math.PI*2);ctx.strokeStyle='#ffd376';ctx.lineWidth=2;ctx.stroke();}
+ if(invincible>0&&!center){ctx.beginPath();ctx.ellipse(0,0,25,27,0,0,Math.PI*2);ctx.strokeStyle='#ffd376';ctx.lineWidth=2;ctx.stroke();}
  ctx.restore();
 }
 function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff10';for(let i=0;i<12;i++){ctx.fillRect(i*36,0,1,H)}for(const b of blocks){
@@ -256,7 +340,7 @@ function bind(id,direction){const el=document.getElementById(id);el.addEventList
 bind('left','left');bind('right','right');
 const gameSurface=document.querySelector('.hero');
 for(const event of ['selectstart','contextmenu','dragstart']){
- gameSurface.addEventListener(event,e=>{if(e.target!==shareText)e.preventDefault();});
+ gameSurface.addEventListener(event,e=>{if(e.target!==shareText&&e.target!==posterSavePreview)e.preventDefault();});
 }
 // Cancel native long-press behavior without replacing Pointer Events movement.
 const controls=document.querySelector('.controls');
