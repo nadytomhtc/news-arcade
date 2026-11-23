@@ -83,11 +83,13 @@ a:focus-visible,button:focus-visible{outline:3px solid white;outline-offset:3px}
 .game-results .hud,.game-results .controls,.game-results .muted{display:none}
 #posterSavePreview{width:100%;max-width:320px;height:auto;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}#posterSavePreview[hidden]{display:none}
 </style>
+<link rel="stylesheet" href="../../shared/arcade.css">
 </head>
 <body>
 <header><a href="../../" style="color:inherit;text-decoration:none" aria-label="返回時事遊樂場首頁"><strong>🎮 時事遊樂場</strong></a><span>GAME 001 · 測試版</span></header>
 <main><section class="hero"><div class="tag">本週遊戲</div><h1>閃躲股票！</h1><p class="muted">股票泡泡從天而降，左右閃躲，撐過60秒！</p><div class="game"><div class="hud"><span id="time">剩餘 60 秒</span><span id="hits">碰撞 0 / 3</span></div><div class="arena"><div class="stage" id="stage"><canvas id="canvas" width="360" height="480" aria-label="閃躲股票泡泡遊戲"></canvas><div class="hit-toast" id="hitToast" role="status" aria-live="polite" hidden><small id="hitStock"></small><span id="hitJoke"></span></div><div class="overlay" id="overlay"><h2 id="resultTitle">準備好閃躲了嗎？</h2><p id="resultText">方向鍵 ← → 或下方按鈕移動<br>60秒不被撞倒就過關！</p><div id="resultCard" class="result-card" hidden><canvas id="resultPoster" width="720" height="900" role="img" aria-label="成績海報"></canvas></div><div id="shareActions" class="share-actions" hidden><button id="shareResult" type="button">海報＋連結</button><button id="savePoster" type="button">儲存海報</button><button id="copyResult" type="button">複製戰績</button></div><details id="socialPanel" class="share-panel" hidden><summary>分享到 FB、Threads、X、IG、YouTube</summary><div class="social-links"><a id="shareFacebook" target="_blank" rel="noopener noreferrer">Facebook</a><a id="shareThreads" target="_blank" rel="noopener noreferrer">Threads</a><a id="shareX" target="_blank" rel="noopener noreferrer">X</a><button id="shareInstagram" type="button">IG 分享教學</button><button id="shareYoutube" type="button">YouTube 教學</button><button id="copyGameLink" type="button">複製連結</button></div><p class="share-guide" id="socialGuide">FB／Threads／X 按鈕分享連結或文案。要貼海報，請用「海報＋連結」選支援的 App，或「儲存海報」後自行上傳。</p></details><p id="shareStatus" role="status" aria-live="polite"></p><img id="posterSavePreview" alt="可長按儲存的成績海報" hidden><div id="shareFallback" class="share-fallback" hidden><label for="shareText">長按下方文字即可複製</label><textarea id="shareText" readonly></textarea></div><button id="start">開始遊戲</button></div></div></div><div class="controls"><button id="left" aria-label="向左移動"></button><button id="right" aria-label="向右移動"></button></div></div></section></main>
 <footer>時事遊樂場 · <a href="../../" style="color:inherit">返回遊樂場</a> · 免費遊玩</footer>
+<script src="../../shared/arcade.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -130,6 +132,7 @@ let toastTimer=0,lastJoke='',lastStock='',dodged=0,hitCounts={},currentResult=nu
 try{personalBest=Number(localStorage.getItem('stock-dodge-best-v1'))||0;}catch{}
 const resultCard=document.getElementById('resultCard'),posterCanvas=document.getElementById('resultPoster'),shareActions=document.getElementById('shareActions'),shareStatus=document.getElementById('shareStatus'),shareFallback=document.getElementById('shareFallback'),shareText=document.getElementById('shareText');
 function showHit(stock){
+ Arcade.sound("hit");
  lastStock=stock.name;hitCounts[stock.name]=(hitCounts[stock.name]||0)+1;lastJoke=stock.joke;hitStock.textContent='撞到 '+stock.name;hitJoke.textContent=stock.joke;
  clearTimeout(toastTimer);toast.hidden=false;toast.classList.remove('pop');void toast.offsetWidth;toast.classList.add('pop');
  toastTimer=setTimeout(()=>{toast.hidden=true;},1600);
@@ -137,7 +140,7 @@ function showHit(stock){
 let running=false,remaining=DURATION,hits=0,blocks=[],keys={left:false,right:false},last=0,spawn=0,invincible=0,cryTimer=0,raf=0;
 const posterSavePreview=document.getElementById('posterSavePreview');
 let posterFile=null,posterDataUrl='';
-function reset(){posterSavePreview.hidden=true;posterSavePreview.removeAttribute("src");document.body.classList.remove("game-results");posterFile=null;posterDataUrl='';socialPanel.hidden=true;socialPanel.open=false;socialGuide.textContent=DEFAULT_SOCIAL_GUIDE;dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
+function reset(){Arcade.results.reset();posterSavePreview.hidden=true;posterSavePreview.removeAttribute("src");document.body.classList.remove("game-results");posterFile=null;posterDataUrl='';socialPanel.hidden=true;socialPanel.open=false;socialGuide.textContent=DEFAULT_SOCIAL_GUIDE;dodged=0;hitCounts={};lastStock='';currentResult=null;resultCard.hidden=true;shareActions.hidden=true;shareFallback.hidden=true;shareStatus.textContent='';overlay.classList.remove('results');clearTimeout(toastTimer);toast.hidden=true;lastJoke='';keys.left=keys.right=false;remaining=DURATION;hits=0;blocks=[];spawn=0;invincible=0;cryTimer=0;player.x=160;last=0;timeLabel.textContent='剩餘 60 秒';hitLabel.textContent='碰撞 0 / 3';}
 function makeResult(win,remaining,hits,dodged){
  const seconds=Math.min(DURATION,Math.max(0,DURATION-remaining));
  const score=Math.floor(seconds*10)+dodged*20+(win?300+(3-hits)*100:0);
@@ -165,9 +168,9 @@ function finish(win){
  try{localStorage.setItem('stock-dodge-best-v1',String(personalBest));}catch{}
  title.textContent=currentResult.slogan.join('，');description.textContent='';
  renderResultPoster(currentResult);
- configureSocialLinks(currentResult);socialPanel.hidden=false;resultCard.hidden=false;shareActions.hidden=false;
- shareStatus.textContent='';shareFallback.hidden=true;
- start.textContent='再挑戰一次';overlay.classList.add('results');overlay.hidden=false;overlay.scrollTop=0;draw();
+ Arcade.sound(win?'win':'lose');
+ overlay.hidden=true;draw();
+ Arcade.results.open({canvas:posterCanvas,title:'閃躲股票',score:currentResult.score,slogan:currentResult.slogan.join('，'),gameId:'stock-dodge',onReplay:play});
 }
 function renderResultPoster(result){
  const p=posterCanvas.getContext('2d'),win=result.win;
@@ -229,69 +232,7 @@ function drawPosterPerson(p,win){
   p.restore();
  }
 }
-function resultShareText(result){
- return '【閃躲股票】'+result.score+' 分！\n'+(result.slogan||[result.joke]).join('，')+'！\n你能比我更會閃嗎？\n'+GAME_URL;
-}
-async function copyScore(text){
- try{
-  if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
-  await navigator.clipboard.writeText(text);shareStatus.textContent='已複製！貼到 LINE 或社群挑戰朋友。';shareFallback.hidden=true;
- }catch{
-  shareFallback.hidden=false;shareText.value=text;shareText.focus();shareText.select();shareStatus.textContent='請長按或選取文字複製。';
- }
-}
-function showPosterShareFallback(){
- if(posterDataUrl){posterSavePreview.src=posterDataUrl;posterSavePreview.hidden=false;}
- shareStatus.textContent+=' 請儲存下方海報，再把圖片和已複製的連結一起貼到社群。';
-}
-async function shareScore(copyOnly=false){
- if(!currentResult||shareBusy)return;
- const result=currentResult,text=resultShareText(result);shareBusy=true;
- try{
-  if(!copyOnly&&navigator.share){
-   try{const payload={title:'閃躲股票｜'+result.score+' 分',text:text.replace('\n'+GAME_URL,''),url:GAME_URL};
-    const hasImage=!!(posterFile&&navigator.canShare?.({...payload,files:[posterFile]}));
-    if(hasImage)payload.files=[posterFile];
-    await navigator.share(payload);if(currentResult===result)shareStatus.textContent=hasImage?'已開啟海報＋遊戲連結分享；請在發文預覽確認圖文都有帶入。':'已開啟文字分享；圖片請按「儲存海報」後上傳。';}
-   catch(error){if(error.name==='AbortError'){if(currentResult===result)shareStatus.textContent='已取消分享，成績仍保留。';}else if(currentResult===result){await copyScore(text);showPosterShareFallback();}}
-  }else{await copyScore(text);if(!copyOnly&&currentResult===result)showPosterShareFallback();}
- }finally{shareBusy=false;}
-}
-document.getElementById('shareResult').addEventListener('click',()=>shareScore());
-document.getElementById('savePoster').addEventListener('click',()=>{
- if(!posterDataUrl||!currentResult)return;
- posterSavePreview.src=posterDataUrl;posterSavePreview.hidden=false;
- const link=document.createElement('a');link.href=posterDataUrl;link.download='stock-dodge-'+(currentResult.win?'win':'lose')+'-'+currentResult.score+'.png';document.body.append(link);link.click();link.remove();
- shareStatus.textContent='已開啟海報下載；手機也可長按下方海報儲存。';
-});
-document.getElementById('copyResult').addEventListener('click',()=>shareScore(true));
-
-function socialShareLinks(result){
- const text=resultShareText(result);
- return {
-  facebook:'https://www.facebook.com/sharer/sharer.php?'+new URLSearchParams({u:GAME_URL}),
-  threads:'https://www.threads.com/intent/post?'+new URLSearchParams({text}),
-  x:'https://x.com/intent/tweet?'+new URLSearchParams({text:'【閃躲股票】'+result.score+'分！'+(result.slogan||[result.joke]).join('，')+'！你能比我更會閃嗎？',url:GAME_URL})
- };
-}
-function configureSocialLinks(result){
- const urls=socialShareLinks(result);
- document.getElementById('shareFacebook').href=urls.facebook;
- document.getElementById('shareThreads').href=urls.threads;
- document.getElementById('shareX').href=urls.x;
-}
-function showPlatformHelp(platform){
- if(!currentResult)return;
- socialGuide.textContent=platform==='instagram'
-  ?'Instagram：先按「儲存海報」，再到 IG 建立貼文或限時動態，上傳這張圖。按「複製戰績」取得文案；限動可用「連結」貼圖貼上「複製連結」取得的遊戲網址。此按鈕不會自動發文。'
-  :'YouTube：先錄製遊戲影片，再自行上傳。按「複製戰績」取得文案，遊戲連結可放頻道個人檔案或已啟用進階功能的長影片說明。Shorts 說明／留言的外部網址無法直接點擊。';
- socialGuide.scrollIntoView({block:'nearest'});
-}
-document.getElementById('shareInstagram').addEventListener('click',()=>showPlatformHelp('instagram'));
-document.getElementById('shareYoutube').addEventListener('click',()=>showPlatformHelp('youtube'));
-document.getElementById('copyGameLink').addEventListener('click',()=>copyScore(GAME_URL));
-
-function play(){cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
+function play(){Arcade.unlock();Arcade.sound("start");cancelAnimationFrame(raf);reset();running=true;overlay.hidden=true;raf=requestAnimationFrame(loop);}
 function spawnBlock(){const size=64+Math.random()*8;const stock=STOCKS[Math.floor(Math.random()*STOCKS.length)];blocks.push({x:Math.random()*(W-size),y:-size,w:size,h:size,speed:125+Math.random()*100,stock});}
 function collide(a,b){const r=b.w/2,cx=b.x+r,cy=b.y+r;const x=Math.max(a.x,Math.min(cx,a.x+a.w)),y=Math.max(a.y,Math.min(cy,a.y+a.h));return (cx-x)**2+(cy-y)**2<r*r;}
 function update(dt){remaining=Math.max(0,remaining-dt);timeLabel.textContent=`剩餘 ${Math.ceil(remaining)} 秒`;if(remaining<=0){finish(true);return;}
