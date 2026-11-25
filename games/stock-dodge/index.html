@@ -309,4 +309,4 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)keys.left=k
 document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();keys[e.key==='ArrowLeft'?'left':'right']=true;}});document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight')keys[e.key==='ArrowLeft'?'left':'right']=false;});window.addEventListener('blur',()=>{keys.left=keys.right=false;});start.addEventListener('click',play);draw();
 })();
 </script>
-</body></html>
+<script src="../../shared/news.js" data-game="stock-dodge"></script></body></html>

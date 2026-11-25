@@ -1,0 +1,1 @@
+(function(root){const rules={stars(seconds,removed){if(removed!==10||seconds>60)return 0;return seconds<=10?5:seconds<=20?4:seconds<=30?3:seconds<=45?2:1;}};if(typeof module==='object')module.exports=rules;else root.StageRules=rules;})(globalThis);
