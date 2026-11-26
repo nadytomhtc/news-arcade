@@ -68,11 +68,10 @@ button{font:inherit;font-weight:850;cursor:pointer}
 .tray #id-card,.documents{display:flex;align-items:center;gap:6px}
 .tray img{width:clamp(35px,12vw,72px);height:42px;object-fit:contain;pointer-events:none}
 
-/* Give the artwork and controls their own rows on narrow screens. */
+.scene:has(#intro:not([hidden]), #outcome:not([hidden])){aspect-ratio:auto}
+.cover{position:relative;display:block}
+.cover img{display:block;width:100%;height:auto}
+#outcome:not(.won) img{max-height:380px;object-fit:contain}
 @media (max-width: 600px){
   main{padding-top:calc(24px + env(safe-area-inset-top, 0px))}
-  .scene:has(#intro:not([hidden]), #outcome:not([hidden])){aspect-ratio:auto}
-  .cover{position:relative;display:block}
-  .cover img{display:block;width:100%;height:auto;object-fit:contain}
-  #outcome:not(.won) img{max-height:380px}
 }
