@@ -3,13 +3,13 @@
 
   const get = id => document.getElementById(id);
   const items = [
-    ['headband', '競選頭巾', 48, 18],
-    ['badge', '徽章', 38, 39],
-    ['sticker', '貼紙', 61, 38],
-    ['ribbon', '布條', 30, 51],
-    ['flag', '小旗', 74, 56],
-    ['flyer', '傳單', 50, 60],
-    ['cell', '📱 手機', 24, 66]
+    ['headband', '競選頭巾', 52, 19, 24],
+    ['badge', '徽章', 36, 38, 6],
+    ['sticker', '貼紙', 64, 38, 9],
+    ['ribbon', '布條', 33, 53, 14],
+    ['flag', '小旗', 24, 64, 22],
+    ['flyer', '傳單', 55, 47, 11],
+    ['cell', '手機', 72, 59, 17]
   ];
   const duration = 45000;
   const idCard = get('id-card');
@@ -91,7 +91,9 @@
       if (!drag.ghost) {
         drag.ghost = document.createElement('div');
         drag.ghost.className = 'ghost';
-        drag.ghost.textContent = item.textContent;
+        const art = item.querySelector('img');
+        if (art) drag.ghost.append(art.cloneNode());
+        else drag.ghost.textContent = item.textContent;
         drag.ghost.setAttribute('aria-hidden','true');
         document.body.append(drag.ghost);
         item.classList.add('dragging');
@@ -114,6 +116,7 @@
     Arcade.unlock();
     Arcade.results.reset();
     Arcade.sound('start');
+    VoteAudio.start();
     clearInterval(timer);
     clearDrag();
     select(null);
@@ -125,14 +128,21 @@
     idCard.classList.remove('ready');
     get('intro').hidden = true;
     get('outcome').hidden = true;
+    get('outcome').classList.remove('won');
     get('play').hidden = false;
     get('progress').textContent = `已整理 0 / ${items.length}`;
     get('hint').textContent = '可拖曳，也可先點物品，再點放置位置。';
-    const buttons = items.map(([id, label, x, y]) => {
+    const buttons = items.map(([id, label, x, y, width]) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'item';
-      button.textContent = label;
+      button.setAttribute('aria-label', label);
+      const art = document.createElement('img');
+      art.src = `assets/${id}.webp`;
+      art.alt = '';
+      art.draggable = false;
+      button.append(art);
+      button.style.setProperty('--width', width + '%');
       button.dataset.target = id === 'cell' ? 'phone' : 'bin';
       button.style.setProperty('--x', x + '%');
       button.style.setProperty('--y', y + '%');
@@ -155,12 +165,14 @@
     idCard.classList.remove('ready');
     get('play').hidden = true;
     get('outcome').hidden = false;
+    get('outcome').classList.toggle('won', won);
     const art = get('outcome-art');
     art.src = (won ? winArt : loseArt).src;
     art.alt = won ? '人物手拿身分證，開心舉手歡呼' : '角色還在準備出門';
     art.style.objectFit = won ? 'cover' : 'contain';
-    get('headline').textContent = won ? '1128返鄉票' : '東西還沒收好！';
+    get('headline').textContent = won ? '1128去投票' : '東西還沒收好！';
     get('hint').textContent = won ? `${(elapsed/1000).toFixed(2)} 秒完成，帶上身分證出門！` : '挑戰時間到，再整理一次。';
+    VoteAudio.finish(won);
     Arcade.sound(won ? 'win' : 'lose');
     get('show').focus({preventScroll:true});
   }
@@ -170,7 +182,7 @@
     const art = won ? winArt : loseArt;
     const score = won ? (elapsed/1000).toFixed(2) : removed;
     const unit = won ? '秒完成' : `/ ${items.length} 件`;
-    const slogan = won ? '1128返鄉票！' : '東西還沒收好！';
+    const slogan = won ? '1128去投票！' : '東西還沒收好！';
     const canvas = document.createElement('canvas');
     canvas.width = 720;
     canvas.height = 900;
