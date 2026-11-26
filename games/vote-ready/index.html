@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>1128返鄉票｜時事遊樂場</title>
+<meta name="description" content="卸下競選小物，收好手機，帶身分證出門投票。">
+<link rel="stylesheet" href="../../shared/arcade.css">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<main>
+<header><a href="../../">時事遊樂場</a></header>
+<h1>1128返鄉票</h1>
+<p class="date">11/28（六）08:00–16:00 · 地方選舉與全國性公投</p>
+<div class="hud"><strong id="progress">已整理 0 / 7</strong><strong id="clock">剩餘 45 秒</strong></div>
+<section class="scene" aria-label="投票前整理挑戰">
+  <div class="play" id="play" hidden>
+    <button id="person" class="target" disabled aria-label="把身分證交給人物"><img src="assets/player.webp" alt=""><span>帶上身分證</span></button>
+    <div id="items"></div>
+    <button id="bin" class="target drop" aria-label="競選物品垃圾桶">🗑️<span>競選小物</span></button>
+    <button id="phone" class="target drop" aria-label="手機寄放籃">🧺<span>手機寄放</span></button>
+  </div>
+  <div class="cover" id="intro"><img src="assets/cover.webp" alt="漫畫角色開心舉手"><div><p>把競選小物拖進垃圾桶，手機放寄放籃。整理完再帶上身分證。</p><button id="start">開始整理</button></div></div>
+  <div class="cover" id="outcome" hidden><img id="outcome-art" alt=""><div><h2 id="headline"></h2><button id="show">查看成績與分享</button></div></div>
+</section>
+<div class="tray"><button id="id-card" class="item" disabled>🪪 身分證</button><span>印章 · 投票通知單</span></div>
+<p id="hint" role="status">可拖曳，也可先點物品，再點放置位置。</p>
+<p class="notice">投票記得帶國民身分證正本、印章與投票通知單。手機可寄放或關機後帶入投票所。</p>
+<footer><a href="../../#games">其他遊戲</a></footer>
+</main>
+<script src="../../shared/arcade.js"></script>
+<script src="game.js"></script>
+<script src="../../shared/news.js" data-game="vote-ready"></script>
+</body>
+</html>
