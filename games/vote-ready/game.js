@@ -2,14 +2,18 @@
   'use strict';
 
   const get = id => document.getElementById(id);
+  // Crop rectangles in the original 1500 × 1700 gameplay canvas.
+  const artworkWidth = 1500;
+  const artworkHeight = 1700;
   const items = [
-    ['headband', '競選頭巾', 52, 19, 24],
-    ['badge', '徽章', 36, 38, 6],
-    ['sticker', '貼紙', 64, 38, 9],
-    ['ribbon', '布條', 33, 53, 14],
-    ['flag', '小旗', 24, 64, 22],
-    ['flyer', '傳單', 55, 47, 11],
-    ['cell', '手機', 72, 59, 17]
+    ["headband", "競選頭巾", 587, 221, 431, 169],
+    ["badge", "左袖徽章", 510, 606, 111, 154],
+    ["sticker", "右袖徽章", 909, 609, 104, 138],
+    ["ribbon", "手腕布條", 350, 855, 193, 123],
+    ["flag", "小旗", 192, 940, 356, 281],
+    ["flyer-left", "左口袋傳單", 572, 730, 119, 156],
+    ["flyer-right", "右口袋傳單", 796, 708, 166, 172],
+    ["cell", "手機", 994, 956, 174, 125]
   ];
   const duration = 45000;
   const idCard = get('id-card');
@@ -17,7 +21,7 @@
   const winArt = new Image();
   const loseArt = new Image();
   winArt.src = 'assets/victory.webp';
-  loseArt.src = 'assets/player.webp';
+  loseArt.src = 'assets/player-aligned.webp';
   let phase = 'intro';
   let removed = 0;
   let started = 0;
@@ -132,20 +136,21 @@
     get('play').hidden = false;
     get('progress').textContent = `已整理 0 / ${items.length}`;
     get('hint').textContent = '可拖曳，也可先點物品，再點放置位置。';
-    const buttons = items.map(([id, label, x, y, width]) => {
+    const buttons = items.map(([id, label, x, y, width, height]) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'item';
       button.setAttribute('aria-label', label);
       const art = document.createElement('img');
-      art.src = `assets/${id}.webp`;
+      art.src = `assets/${id}-aligned.webp`;
       art.alt = '';
       art.draggable = false;
       button.append(art);
-      button.style.setProperty('--width', width + '%');
+      button.style.setProperty('--width', width / artworkWidth * 100 + '%');
+      button.style.setProperty('--height', height / artworkHeight * 100 + '%');
       button.dataset.target = id === 'cell' ? 'phone' : 'bin';
-      button.style.setProperty('--x', x + '%');
-      button.style.setProperty('--y', y + '%');
+      button.style.setProperty('--x', x / artworkWidth * 100 + '%');
+      button.style.setProperty('--y', y / artworkHeight * 100 + '%');
       bindItem(button);
       return button;
     });
