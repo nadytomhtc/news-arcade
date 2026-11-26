@@ -67,3 +67,12 @@ button{font:inherit;font-weight:850;cursor:pointer}
 .artwork{position:absolute;top:0;left:50%;width:calc(100% * 1500 / 1700);aspect-ratio:1500/1700;transform:translateX(-50%)}
 .tray #id-card,.documents{display:flex;align-items:center;gap:6px}
 .tray img{width:clamp(35px,12vw,72px);height:42px;object-fit:contain;pointer-events:none}
+
+/* Give the artwork and controls their own rows on narrow screens. */
+@media (max-width: 600px){
+  main{padding-top:calc(24px + env(safe-area-inset-top, 0px))}
+  .scene:has(#intro:not([hidden]), #outcome:not([hidden])){aspect-ratio:auto}
+  .cover{position:relative;display:block}
+  .cover img{display:block;width:100%;height:auto;object-fit:contain}
+  #outcome:not(.won) img{max-height:380px}
+}
