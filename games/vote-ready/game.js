@@ -79,6 +79,13 @@
   }
 
   function bindItem(item) {
+    // Keep Safari from scrolling when a touch starts on a draggable item.
+    item.addEventListener('touchmove', event => {
+      if (phase === 'playing' && !item.disabled && event.cancelable) event.preventDefault();
+    }, {passive: false});
+    item.addEventListener('contextmenu', event => {
+      if (phase === 'playing' && !item.disabled) event.preventDefault();
+    });
     item.addEventListener('click', () => {
       if (phase !== 'playing') return;
       select(item);
