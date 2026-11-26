@@ -6,7 +6,7 @@
 <title>1128返鄉票｜時事遊樂場</title>
 <meta name="description" content="卸下競選小物，收好手機，帶身分證出門投票。">
 <link rel="stylesheet" href="../../shared/arcade.css">
-<link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="game.css?v=illustrated">
 </head>
 <body>
 <main>
@@ -18,8 +18,8 @@
   <div class="play" id="play" hidden>
     <button id="person" class="target" disabled aria-label="把身分證交給人物"><img src="assets/player.webp" alt=""><span>帶上身分證</span></button>
     <div id="items"></div>
-    <button id="bin" class="target drop" aria-label="競選物品垃圾桶">🗑️<span>競選小物</span></button>
-    <button id="phone" class="target drop" aria-label="手機寄放籃">🧺<span>手機寄放</span></button>
+    <button id="bin" class="target drop" aria-label="競選物品垃圾桶"><img src="assets/bin.webp" alt=""><span>競選小物</span></button>
+    <button id="phone" class="target drop" aria-label="手機寄放籃"><img src="assets/phone.webp" alt=""><span>手機寄放</span></button>
   </div>
   <div class="cover" id="intro"><img src="assets/cover.webp" alt="漫畫角色開心舉手"><div><p>把競選小物拖進垃圾桶，手機放寄放籃。整理完再帶上身分證。</p><button id="start">開始整理</button></div></div>
   <div class="cover" id="outcome" hidden><img id="outcome-art" alt=""><div><h2 id="headline"></h2><button id="show">查看成績與分享</button></div></div>
@@ -30,7 +30,8 @@
 <footer><a href="../../#games">其他遊戲</a></footer>
 </main>
 <script src="../../shared/arcade.js"></script>
-<script src="game.js"></script>
+<script src="audio.js"></script>
+<script src="game.js?v=illustrated"></script>
 <script src="../../shared/news.js" data-game="vote-ready"></script>
 </body>
 </html>
